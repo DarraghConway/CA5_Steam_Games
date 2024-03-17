@@ -3,6 +3,7 @@ package com.dkit.oop.sd2.BusinessObjects;
 import com.dkit.oop.sd2.DAOs.MySqlGameDao;
 import com.dkit.oop.sd2.DAOs.GameDaoInterface;
 import com.dkit.oop.sd2.DTOs.Game;
+import com.dkit.oop.sd2.DTOs.GamesNameComparator;
 import com.dkit.oop.sd2.Exceptions.DaoException;
 
 import java.sql.SQLOutput;
@@ -17,7 +18,9 @@ import java.util.Scanner;
 //  Made MYSQL Database in XAMPP
 //  Made GitHub Repo
 //  Replaced old code following the new DAO Interface
-//  To Do: Find Key and Display this particular game.
+//  Find Key and Display this particular game.
+//  Get a list of matching entities by NameComparator
+//  To Do : JUNIT Method
 
 // Yee Chean
 // DeleteByID & DeleteByIDValidation
@@ -28,8 +31,7 @@ import java.util.Scanner;
 // Insert a new Game Object
 //  Made GitHub Repo
 
-public class App
-{
+public class App {
     public static void main(String[] args) {
         Scanner kb = new Scanner(System.in);
         GameDaoInterface IGameDao = new MySqlGameDao();
@@ -42,6 +44,8 @@ public class App
             System.out.println("=       2. Find an entity by key                =");
             System.out.println("=       3. Delete an entity by key              =");
             System.out.println("=       4. Insert an entity                     =");
+            System.out.println("=       5. Update an entity                     =");
+            System.out.println("=       6. Get list of entities matching filter =");
             System.out.println("=       0. Exit                                 =");
             System.out.println("=================================================\n");
 
@@ -53,36 +57,36 @@ public class App
                 System.out.print("Please Enter your choice: ");
                 option = kb.nextInt();
 
-
                 switch (option) {
                     case 1:
-                        //Raphael
-                        IGameDao.displayAllGames();
+                        // Raphael
+                        displayAllGames(IGameDao);
                         break;
                     case 2:
-                        //Raphael & Yee Chean
-                        do{
+                        // Raphael & Yee Chean
+                        do {
                             System.out.println("Please Enter a gameID to Find: ");
-                            while(!kb.hasNextInt()){
+                            while (!kb.hasNextInt()) {
                                 System.out.println("That is not an ID, please Try Again...");
                                 kb.next();
                             }
                             findGameID = kb.nextInt();
-                            IGameDao.getGameByID(findGameID);
-                        }while(findGameID <= 0);
+                            List<Game> gameList = IGameDao.getGameByID(findGameID);
+                            printGamesTable(gameList);
+                        } while (findGameID <= 0);
                         break;
 
                     case 3:
                         //Yee Chean
-                        do{
+                        do {
                             System.out.println("Please Enter a gameID to Delete: ");
-                            while(!kb.hasNextInt()){
+                            while (!kb.hasNextInt()) {
                                 System.out.println("That is not an ID, please Try Again...");
                                 kb.next();
                             }
                             deleteGameID = kb.nextInt();
                             IGameDao.deleteByID(deleteGameID);
-                        }while(deleteGameID <= 0);
+                        } while (deleteGameID <= 0);
                         break;
                     case 4:
                         //Darragh
@@ -102,10 +106,13 @@ public class App
                         System.out.print("Please enter stock level: ");
                         int stockLevel = kb.nextInt();
                         int gameID = 0;
-                        Game game = new Game(gameID,name,genre,date,rating,price,isLimited,stockLevel);
+                        Game game = new Game(gameID, name, genre, date, rating, price, isLimited, stockLevel);
                         IGameDao.insertGame(game);
-
-
+                        break;
+                    case 6:
+                        //Raphael
+                        List<Game> filteredGames = IGameDao.findGamesUsingFilter(new GamesNameComparator());
+                        printGamesTable(filteredGames);
                         break;
                     case 0:
                         System.out.println("Exiting Steam Games Library. Goodbye!");
@@ -117,5 +124,30 @@ public class App
         } catch (DaoException e) {
             e.printStackTrace();
         }
+
+    }
+
+    // Raphael displaying table to menu, Originally in DAO.
+    // Calling the displayAllGames method
+    private static void displayAllGames(GameDaoInterface iGameDao) throws DaoException {
+        List<Game> gamesList = iGameDao.displayAllGames();
+        printGamesTable(gamesList);
+    }
+    // Calling the getGameByID method
+    private static void getGameByID(GameDaoInterface iGameDao, int gameIDToFind) throws DaoException {
+        List<Game> gamesList = iGameDao.getGameByID(gameIDToFind);
+        printGamesTable(gamesList);
+    }
+    // Displaying the table with set widths
+    private static void printGamesTable(List<Game> gamesList) {
+        // Print table headers
+        System.out.println("\n=============================================================================================================================");
+        System.out.printf("%-2s %-8s %-30s %-20s %-15s %-10s %-10s %-10s %-10s %-2s%n", "=", "GameID", "Name", "Genre", "ReleaseDate", "Rating", "Price", "IsLimited", "StockLevel", "=");
+        System.out.println("=============================================================================================================================");
+        // Print table data
+        for (Game game : gamesList) {
+            System.out.printf("%-2s %-8d %-30s %-20s %-15s %-10.1f %-10.2f %-10s %-9d  %-1s%n", "=", game.getId(), game.getName(), game.getGenre(), game.getReleaseDate(), game.getRating(), game.getPrice(), game.isLimited(), game.getStockLevel(), "=");
+        }
+        System.out.println("=============================================================================================================================\n");
     }
 }
