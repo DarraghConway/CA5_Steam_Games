@@ -28,10 +28,9 @@ import java.util.Scanner;
 // To Do: -
 
 // Darragh
-// Insert a new Game Object
-//  Made GitHub Repo
 
-public class App {
+public class App
+{
     public static void main(String[] args) {
         Scanner kb = new Scanner(System.in);
         GameDaoInterface IGameDao = new MySqlGameDao();
@@ -51,11 +50,13 @@ public class App {
 
             int findGameID;
             int deleteGameID;
+            int idToUpdate;
 
             int option = -1;
             while (option != 0) {
                 System.out.print("Please Enter your choice: ");
                 option = kb.nextInt();
+
 
                 switch (option) {
                     case 1:
@@ -78,15 +79,15 @@ public class App {
 
                     case 3:
                         //Yee Chean
-                        do {
+                        do{
                             System.out.println("Please Enter a gameID to Delete: ");
-                            while (!kb.hasNextInt()) {
+                            while(!kb.hasNextInt()){
                                 System.out.println("That is not an ID, please Try Again...");
                                 kb.next();
                             }
                             deleteGameID = kb.nextInt();
                             IGameDao.deleteByID(deleteGameID);
-                        } while (deleteGameID <= 0);
+                        }while(deleteGameID <= 0);
                         break;
                     case 4:
                         //Darragh
@@ -106,9 +107,35 @@ public class App {
                         System.out.print("Please enter stock level: ");
                         int stockLevel = kb.nextInt();
                         int gameID = 0;
-                        Game game = new Game(gameID, name, genre, date, rating, price, isLimited, stockLevel);
+                        Game game = new Game(gameID,name,genre,date,rating,price,isLimited,stockLevel);
                         IGameDao.insertGame(game);
+
+                    case 5:
+                        kb.nextLine();
+                        System.out.println("Please enter the gameID you wish to update: ");
+                        idToUpdate = kb.nextInt();
+
+                        kb.nextLine();
+                        System.out.print("Please enter game name: ");
+                        String nameU = kb.nextLine();
+                        System.out.print("Please enter game genre: ");
+                        String genreU = kb.nextLine();
+                        System.out.print("Please enter game release date (YYYY-MM-DD): ");
+                        LocalDate dateU = LocalDate.parse(kb.next());
+                        System.out.print("Please enter game rating: ");
+                        double ratingU = kb.nextDouble();
+                        System.out.print("Please enter game price: ");
+                        double priceU = kb.nextDouble();
+                        System.out.print("Please state if game is limited (true/false): ");
+                        boolean isLimitedU = kb.nextBoolean();
+                        System.out.print("Please enter stock level: ");
+                        int stockLevelU = kb.nextInt();
+                        int gameIDU = 0;
+
+                        Game gameU = new Game(gameIDU,nameU,genreU,dateU,ratingU,priceU,isLimitedU,stockLevelU);
+                        IGameDao.updateExistingGame(idToUpdate, gameU);
                         break;
+
                     case 6:
                         //Raphael
                         List<Game> filteredGames = IGameDao.findGamesUsingFilter(new GamesNameComparator());
@@ -124,9 +151,7 @@ public class App {
         } catch (DaoException e) {
             e.printStackTrace();
         }
-
     }
-
     // Raphael displaying table to menu, Originally in DAO.
     // Calling the displayAllGames method
     private static void displayAllGames(GameDaoInterface iGameDao) throws DaoException {
@@ -146,7 +171,7 @@ public class App {
         System.out.println("=============================================================================================================================");
         // Print table data
         for (Game game : gamesList) {
-            System.out.printf("%-2s %-8d %-30s %-20s %-15s %-10.1f %-10.2f %-10s %-9d  %-1s%n", "=", game.getId(), game.getName(), game.getGenre(), game.getReleaseDate(), game.getRating(), game.getPrice(), game.isLimited(), game.getStockLevel(), "=");
+            System.out.printf("%-2s %-8d %-30s %-20s %-15s %-10.1f %-10.2f %-10s %-9d  %-1s%n", "=", game.getID(), game.getName(), game.getGenre(), game.getReleaseDate(), game.getRating(), game.getPrice(), game.isLimited(), game.getStockLevel(), "=");
         }
         System.out.println("=============================================================================================================================\n");
     }
