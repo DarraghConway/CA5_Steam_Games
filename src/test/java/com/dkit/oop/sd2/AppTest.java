@@ -149,6 +149,9 @@ public class AppTest {
          * assertEquals(updatedGame.getStockLevel(), retrievedGame.getStockLevel());
          */
 
+        //Delete game from your database (so you don't have to manually do it each time)
+        dao.deleteByID(game.getID());
+
     }
 
     @Test
