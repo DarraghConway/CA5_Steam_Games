@@ -294,4 +294,3 @@ public class MySqlGameDao extends MySqlDao implements GameDaoInterface
         return gamesList;
     }
 }
-

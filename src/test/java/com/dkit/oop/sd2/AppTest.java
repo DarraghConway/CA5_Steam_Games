@@ -28,7 +28,6 @@ public class AppTest {
     /**
      * Rigorous Test :-)
      */
-
     @Test
     public void shouldAnswerWithTrue() {
         assertTrue(true);
@@ -44,8 +43,8 @@ public class AppTest {
 
         List<Game> gamesList = dao.displayAllGames();
 
-        assertEquals(15, gamesList.size()); // I had 15 games in my Games table, change the expected value to match your
-                                            // table.
+        assertEquals(17, gamesList.size()); // I had 15 games in my Games table, change the expected value to match your
+        // table.
     }
 
     @Test
@@ -58,7 +57,7 @@ public class AppTest {
         assertEquals(1, gamesList.size()); // getGameByID called once so size should equal 1
         Game retrievedGame = gamesList.get(0);
         assertEquals("Cyberpunk 2077", retrievedGame.getName()); // testing if it returns the correct game and not just
-                                                                 // any random game.
+        // any random game.
     }
 
     @Test
@@ -80,9 +79,9 @@ public class AppTest {
             resultSet.next();
             int count = resultSet.getInt(1);
             assertEquals(1, count); // Count should be 1 if it found a game with an ID that matches the newly
-                                    // inserted Game.
+            // inserted Game.
             assertEquals("", game.getName()); // name should be "" because the game was initialized using default
-                                              // constructor
+            // constructor
         }
 
         // delete the test game
@@ -148,9 +147,6 @@ public class AppTest {
          * assertEquals(updatedGame.isLimited(), retrievedGame.isLimited());
          * assertEquals(updatedGame.getStockLevel(), retrievedGame.getStockLevel());
          */
-
-        //Delete game from your database (so you don't have to manually do it each time)
-        dao.deleteByID(game.getID());
 
     }
 

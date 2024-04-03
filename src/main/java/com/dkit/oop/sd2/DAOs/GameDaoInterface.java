@@ -14,8 +14,11 @@ public interface GameDaoInterface
     public void deleteByID(int gameIDToDelete) throws DaoException;
     // Darragh
     public void insertGame(Game game) throws DaoException;
+
+    // Yee Chean
+    void updateExistingGame(int idToUpdate, Game game) throws DaoException;
+
     // Raphael Feature 6
-    public void updateExistingGame(int idToUpdate,Game game) throws DaoException;
     List<Game> findGamesUsingFilter(Comparator<Game> comparator) throws DaoException;
 
 }
