@@ -43,7 +43,7 @@ public class AppTest {
 
         List<Game> gamesList = dao.displayAllGames();
 
-        assertEquals(17, gamesList.size()); // I had 15 games in my Games table, change the expected value to match your
+        assertEquals(16, gamesList.size()); // I had 15 games in my Games table, change the expected value to match your
         // table.
     }
 
