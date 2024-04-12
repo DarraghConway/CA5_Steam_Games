@@ -40,8 +40,9 @@ public class Client {
             OutputStream os = socket.getOutputStream();
             PrintWriter socketWriter = new PrintWriter(os, true); // true => auto flush buffers
 
-            Scanner socketReader = new Scanner(socket.getInputStream()); // wait for, and retrieve the reply
             socketWriter.println(command);
+
+            Scanner socketReader = new Scanner(socket.getInputStream()); // wait for, and retrieve the reply
 
             // OLD MENU FROM APP, COULD POSSIBLY BE USED IF WE NEED TO MOVE EVERYTHING FROM
             // APP TO CLIENT
