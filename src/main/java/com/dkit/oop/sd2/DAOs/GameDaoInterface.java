@@ -10,8 +10,13 @@ public interface GameDaoInterface
 {
     // Raphael Displaying tables
     public List<Game> displayAllGames() throws DaoException;
+
+    //
     public List<Game> getGameByID(int gameIDToFind) throws DaoException;
+
+    //Yee Chean DeleteByID
     public void deleteByID(int gameIDToDelete) throws DaoException;
+
     // Darragh
     public void insertGame(Game game) throws DaoException;
 
@@ -22,4 +27,3 @@ public interface GameDaoInterface
     List<Game> findGamesUsingFilter(Comparator<Game> comparator) throws DaoException;
 
 }
-

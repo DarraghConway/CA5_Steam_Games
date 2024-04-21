@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import static com.dkit.oop.sd2.BusinessObjects.App.displayAllGames;
 import static com.dkit.oop.sd2.Thread.Server.ClientHandler.createGson;
 
+
 // Yee Chean
 // Created 2 files Server and Client
 // Transferred
@@ -43,14 +44,13 @@ import static com.dkit.oop.sd2.Thread.Server.ClientHandler.createGson;
 
 public class Server {
     static final Gson gson = createGson();;
-
     public static void main(String[] args) {
         Server server = new Server();
         server.start();
     }
 
     public void start() {
-        try (ServerSocket ss = new ServerSocket(2626)) {
+        try (ServerSocket ss = new ServerSocket(3222)) {
             System.out.println("Server: Server started. Listening for connections on port 8888...");
             int clientNumber = 0;
 
@@ -133,7 +133,8 @@ public class Server {
 
                     // Yee Chean & Raphael Update Entity
                     else if (message.startsWith("4")) {
-
+                        int gameId = Integer.parseInt(socketReader.readLine()); // Read game ID from client
+                        handleUpdateEntity(socketWriter, socketReader, gameDao, gameId);
                     }
 
                     // Raphael Get list of entities matching filter
@@ -232,51 +233,72 @@ public class Server {
 
         private String generateGamesTable(List<Game> gamesList) {
             StringBuilder table = new StringBuilder();
-            table.append(
-                    "\n=============================================================================================================================\n");
-            table.append(String.format("%-2s %-8s %-30s %-20s %-15s %-10s %-10s %-10s %-10s %-2s%n", "=", "GameID",
-                    "Name", "Genre", "ReleaseDate", "Rating", "Price", "IsLimited", "StockLevel", "="));
-            table.append(
-                    "=============================================================================================================================\n");
+            table.append("\n=============================================================================================================================\n");
+            table.append(String.format("%-2s %-8s %-30s %-20s %-15s %-10s %-10s %-10s %-10s %-2s%n", "=", "GameID", "Name", "Genre", "ReleaseDate", "Rating", "Price", "IsLimited", "StockLevel", "="));
+            table.append("=============================================================================================================================\n");
             for (Game game : gamesList) {
-                table.append(String.format("%-2s %-8d %-30s %-20s %-15s %-10.1f %-10.2f %-10s %-9d  %-1s%n", "=",
-                        game.getID(), game.getName(), game.getGenre(), game.getReleaseDate(), game.getRating(),
-                        game.getPrice(), game.isLimited(), game.getStockLevel(), "="));
+                table.append(String.format("%-2s %-8d %-30s %-20s %-15s %-10.1f %-10.2f %-10s %-9d  %-1s%n", "=", game.getID(), game.getName(), game.getGenre(), game.getReleaseDate(), game.getRating(), game.getPrice(), game.isLimited(), game.getStockLevel(), "="));
             }
-            table.append(
-                    "=============================================================================================================================\n\n");
+            table.append("=============================================================================================================================\n\n");
             return table.toString();
         }
 
         private String generateGameTableByID(List<Game> gameList) {
             StringBuilder table = new StringBuilder();
-            table.append(
-                    "\n=============================================================================================================================\n");
-            table.append(String.format("%-8s %-30s %-20s %-15s %-10s %-10s %-10s %-10s%n", "GameID", "Name", "Genre",
-                    "ReleaseDate", "Rating", "Price", "IsLimited", "StockLevel"));
-            table.append(
-                    "=============================================================================================================================\n");
+            table.append("\n=============================================================================================================================\n");
+            table.append(String.format("%-8s %-30s %-20s %-15s %-10s %-10s %-10s %-10s%n", "GameID", "Name", "Genre", "ReleaseDate", "Rating", "Price", "IsLimited", "StockLevel"));
+            table.append("=============================================================================================================================\n");
             for (Game game : gameList) {
-                table.append(String.format("%-8d %-30s %-20s %-15s %-10.1f %-10.2f %-10s %-9d%n", game.getID(),
-                        game.getName(), game.getGenre(), game.getReleaseDate(), game.getRating(), game.getPrice(),
-                        game.isLimited(), game.getStockLevel()));
+                table.append(String.format("%-8d %-30s %-20s %-15s %-10.1f %-10.2f %-10s %-9d%n", game.getID(), game.getName(), game.getGenre(), game.getReleaseDate(), game.getRating(), game.getPrice(), game.isLimited(), game.getStockLevel()));
             }
-            table.append(
-                    "=============================================================================================================================\n\n");
+            table.append("=============================================================================================================================\n\n");
             return table.toString();
         }
 
+
         // Raphael
         // Helper method to create Gson instance with LocalDateAdapter
-        static Gson createGson() {
+        static Gson createGson()
+        {
             GsonBuilder gsonBuilder = new GsonBuilder();
             gsonBuilder.registerTypeAdapter(LocalDate.class, new LocalDateAdapter());
             return gsonBuilder.create();
         }
 
+        //Yee Chean
+        private static void handleUpdateEntity(PrintWriter socketWriter, BufferedReader socketReader,GameDaoInterface gameDao, int gameID) {
+            try {
+                StringBuilder jsonBuilder = new StringBuilder();
+                String line;
+                while (!(line = socketReader.readLine()).isEmpty()) {
+                    jsonBuilder.append(line);
+                }
+                String jsonData = jsonBuilder.toString();
+                System.out.println("Json data: " + jsonData);
+
+                Gson gson = createGson();
+                Game newGame = gson.fromJson(jsonData, Game.class);
+
+                gameDao.updateExistingGame(gameID, newGame);
+
+                JsonObject responseJson = new JsonObject();
+                responseJson.addProperty("success", true);
+                String jsonResponse = responseJson.toString();
+                socketWriter.println(jsonResponse);
+            } catch (DaoException e) {
+                System.out.println("Server: DaoException: " + e);
+            } catch (Exception e) {
+                JsonObject responseJson = new JsonObject();
+                responseJson.addProperty("success", false);
+                responseJson.addProperty("error", "An error occurred: " + e.getMessage());
+                String jsonResponse = responseJson.toString();
+                socketWriter.println(jsonResponse);
+            }
+        }
+
         // Darragh
         private static void handleAddEntity(PrintWriter socketWriter, BufferedReader socketReader,
-                GameDaoInterface gameDao) {
+                                            GameDaoInterface gameDao) {
             try {
                 StringBuilder jsonBuilder = new StringBuilder();
                 String line;
@@ -306,7 +328,8 @@ public class Server {
             }
         }
 
-        private static void sendFile(String path) throws Exception {
+        private static void sendFile(String path) throws Exception
+        {
             int bytes = 0;
             // Open the File at the specified location (path)
             File file = new File(path);
@@ -318,13 +341,11 @@ public class Server {
             // Here we break file into chunks
             byte[] buffer = new byte[4 * 1024]; // 4 kilobyte buffer
 
-            // read bytes from file into the buffer until buffer is full or we reached end
-            // of file
-            while ((bytes = fileInputStream.read(buffer)) != -1) {
-                // Send the buffer contents to Server Socket, along with the count of the number
-                // of bytes
+            // read bytes from file into the buffer until buffer is full or we reached end of file
+            while ((bytes = fileInputStream.read(buffer))!= -1) {
+                // Send the buffer contents to Server Socket, along with the count of the number of bytes
                 dataOutputStream.write(buffer, 0, bytes);
-                dataOutputStream.flush(); // force the data into the stream
+                dataOutputStream.flush();   // force the data into the stream
             }
             // close the file
             fileInputStream.close();
